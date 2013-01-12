@@ -377,31 +377,7 @@ if(g_sloppy_precision == 1 && g_sloppy_precision_flag == 1) {
      _hop_z_p_post();
      ix++;
    
-//     _hop_z_m_post();
-
-  _prefetch_su3(U+predist);			
-  _prefetch_spinor(s+1);			
-  _avx_load(phi[ix]->s0);			
-  _avx_su3_inverse_multiply((*U));		
-  _avx_vector_cmplxcg_mul(ka3);			
-  _avx_load(rs.s0);				
-  _avx_vector_add();				
-  _avx_store_nt(s->s0);				
-  _avx_load(rs.s2);				
-  _avx_vector_i_mul();				
-  _avx_vector_add();				
-  _avx_store_nt(s->s2);				
-  _avx_load(phi[ix]->s1);			
-  _avx_su3_inverse_multiply((*U));		
-  _avx_vector_cmplxcg_mul(ka3);			
-  _avx_load(rs.s1);
-  _avx_vector_add();				
-  _avx_store_nt(s->s1);				
-  _avx_load(rs.s3);				
-  _avx_vector_i_mul();				
-  _avx_vector_sub();				
-  _avx_store_nt(s->s3);
-
+     _hop_z_m_post();
      
 #ifdef _MUL_G5_CMPLX
      _hop_mul_g5_cmplx_and_store(s);
