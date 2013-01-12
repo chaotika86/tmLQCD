@@ -569,6 +569,258 @@
   
 #define _store_res()
 
+#elif (defined AVX)
+
+#define _declare_regs()				\
+  spinor ALIGN rs;
+
+#define _hop_t_p()				\
+  _prefetch_su3(um);				\
+  _avx_load(sp->s0);				\
+  _avx_load_up(sp->s2);				\
+  _avx_vector_add();				\
+  _avx_su3_multiply((*up));			\
+  _avx_vector_cmplx_mul(ka0);			\
+  _avx_store_up(rs.s0);				\
+  _avx_store_up(rs.s2);				\
+  _avx_load(sp->s1);				\
+  _avx_load_up(sp->s3);				\
+  _avx_vector_add();				\
+  _avx_su3_multiply((*up));			\
+  _avx_vector_cmplx_mul(ka0);			\
+  _avx_store_up(rs.s1);				\
+  _avx_store_up(rs.s3);
+
+#define _hop_t_m()				\
+  _prefetch_su3(up);				\
+  _avx_load(sm->s0);				\
+  _avx_load_up(sm->s2);				\
+  _avx_vector_sub();				\
+  _avx_su3_inverse_multiply((*um));		\
+  _avx_vector_cmplxcg_mul(ka0);			\
+  _avx_load(rs.s0);				\
+  _avx_vector_add();				\
+  _avx_store(rs.s0);				\
+  _avx_load(rs.s2);				\
+  _avx_vector_sub();				\
+  _avx_store(rs.s2);				\
+  _avx_load(sm->s1);				\
+  _avx_load_up(sm->s3);				\
+  _avx_vector_sub();				\
+  _avx_su3_inverse_multiply((*um));		\
+  _avx_vector_cmplxcg_mul(ka0);			\
+  _avx_load(rs.s1);				\
+  _avx_vector_add();				\
+  _avx_store(rs.s1);				\
+  _avx_load(rs.s3);				\
+  _avx_vector_sub();				\
+  _avx_store(rs.s3);
+
+#define _hop_x_p()				\
+  _prefetch_su3(um);				\
+  _avx_load(sp->s0);				\
+  _avx_load_up(sp->s3);				\
+  _avx_vector_i_mul();				\
+  _avx_vector_add();				\
+  _avx_su3_multiply((*up));			\
+  _avx_vector_cmplx_mul(ka1);			\
+  _avx_load(rs.s0);				\
+  _avx_vector_add();				\
+  _avx_store(rs.s0);				\
+  _avx_load(rs.s3);				\
+  _avx_vector_i_mul();				\
+  _avx_vector_sub();				\
+  _avx_store(rs.s3);				\
+  _avx_load(sp->s1);				\
+  _avx_load_up(sp->s2);				\
+  _avx_vector_i_mul();				\
+  _avx_vector_add();				\
+  _avx_su3_multiply((*up));			\
+  _avx_vector_cmplx_mul(ka1);			\
+  _avx_load(rs.s1);				\
+  _avx_vector_add();				\
+  _avx_store(rs.s1);				\
+  _avx_load(rs.s2);				\
+  _avx_vector_i_mul();				\
+  _avx_vector_sub();				\
+  _avx_store(rs.s2);
+
+#define _hop_x_m()				\
+  _prefetch_su3(up);				\
+  _avx_load(sm->s0);				\
+  _avx_load_up(sm->s3);				\
+  _avx_vector_i_mul();				\
+  _avx_vector_sub();				\
+  _avx_su3_inverse_multiply((*um));		\
+  _avx_vector_cmplxcg_mul(ka1);			\
+  _avx_load(rs.s0);				\
+  _avx_vector_add();				\
+  _avx_store(rs.s0);				\
+  _avx_load(rs.s3);				\
+  _avx_vector_i_mul();				\
+  _avx_vector_add();				\
+  _avx_store(rs.s3);				\
+  _avx_load(sm->s1);				\
+  _avx_load_up(sm->s2);				\
+  _avx_vector_i_mul();				\
+  _avx_vector_sub();				\
+  _avx_su3_inverse_multiply((*um));		\
+  _avx_vector_cmplxcg_mul(ka1);			\
+  _avx_load(rs.s1);				\
+  _avx_vector_add();				\
+  _avx_store(rs.s1);				\
+  _avx_load(rs.s2);				\
+  _avx_vector_i_mul();				\
+  _avx_vector_add();				\
+  _avx_store(rs.s2);
+
+#define _hop_y_p()				\
+  _prefetch_su3(um);				\
+  _avx_load(sp->s0);				\
+  _avx_load_up(sp->s3);				\
+  _avx_vector_add();				\
+  _avx_su3_multiply((*up));			\
+  _avx_vector_cmplx_mul(ka2);			\
+  _avx_load(rs.s0);				\
+  _avx_vector_add();				\
+  _avx_store(rs.s0);				\
+  _avx_load(rs.s3);				\
+  _avx_vector_add();				\
+  _avx_store(rs.s3);				\
+  _avx_load(sp->s1);				\
+  _avx_load_up(sp->s2);				\
+  _avx_vector_sub();				\
+  _avx_su3_multiply((*up));			\
+  _avx_vector_cmplx_mul(ka2);			\
+  _avx_load(rs.s1);				\
+  _avx_vector_add();				\
+  _avx_store(rs.s1);				\
+  _avx_load(rs.s2);				\
+  _avx_vector_sub();				\
+  _avx_store(rs.s2);      
+
+#define _hop_y_m()				\
+  _prefetch_su3(up);				\
+  _avx_load(sm->s0);				\
+  _avx_load_up(sm->s3);				\
+  _avx_vector_sub();				\
+  _avx_su3_inverse_multiply((*um));		\
+  _avx_vector_cmplxcg_mul(ka2);			\
+  _avx_load(rs.s0);				\
+  _avx_vector_add();				\
+  _avx_store(rs.s0);				\
+  _avx_load(rs.s3);				\
+  _avx_vector_sub();				\
+  _avx_store(rs.s3);				\
+  _avx_load(sm->s1);				\
+  _avx_load_up(sm->s2);				\
+  _avx_vector_add();				\
+  _avx_su3_inverse_multiply((*um));		\
+  _avx_vector_cmplxcg_mul(ka2);			\
+  _avx_load(rs.s1);				\
+  _avx_vector_add();				\
+  _avx_store(rs.s1);				\
+  _avx_load(rs.s2);				\
+  _avx_vector_add();				\
+  _avx_store(rs.s2);
+
+#define _hop_z_p()				\
+  _prefetch_su3(um);				\
+  _avx_load(sp->s0);				\
+  _avx_load_up(sp->s2);				\
+  _avx_vector_i_mul();				\
+  _avx_vector_add();				\
+  _avx_su3_multiply((*up));			\
+  _avx_vector_cmplx_mul(ka3);			\
+  _avx_load(rs.s0);				\
+  _avx_vector_add();				\
+  _avx_store(rs.s0);				\
+  _avx_load(rs.s2);				\
+  _avx_vector_i_mul();				\
+  _avx_vector_sub();				\
+  _avx_store(rs.s2);				\
+  _avx_load(sp->s1);				\
+  _avx_load_up(sp->s3);				\
+  _avx_vector_i_mul();				\
+  _avx_vector_sub();				\
+  _avx_su3_multiply((*up));			\
+  _avx_vector_cmplx_mul(ka3);			\
+  _avx_load(rs.s1);				\
+  _avx_vector_add();				\
+  _avx_store(rs.s1);				\
+  _avx_load(rs.s3);				\
+  _avx_vector_i_mul();				\
+  _avx_vector_add();				\
+  _avx_store(rs.s3);
+
+#define _hop_z_m()				\
+  _prefetch_su3(up);				\
+  _avx_load(sm->s0);				\
+  _avx_load_up(sm->s2);				\
+  _avx_vector_i_mul();				\
+  _avx_vector_sub();				\
+  _avx_su3_inverse_multiply((*um));		\
+  _avx_vector_cmplxcg_mul(ka3);			\
+  _avx_load(rs.s0);				\
+  _avx_vector_add();				\
+  _avx_store_nt(rn->s0);			\
+  _avx_load(rs.s2);				\
+  _avx_vector_i_mul();				\
+  _avx_vector_add();				\
+  _avx_store_nt(rn->s2);			\
+  _avx_load(sm->s1);				\
+  _avx_load_up(sm->s3);				\
+  _avx_vector_i_mul();				\
+  _avx_vector_add();				\
+  _avx_su3_inverse_multiply((*um));		\
+  _avx_vector_cmplxcg_mul(ka3);			\
+  _avx_load(rs.s1);				\
+  _avx_vector_add();				\
+  _avx_store_nt(rn->s1);			\
+  _avx_load(rs.s3);				\
+  _avx_vector_i_mul();				\
+  _avx_vector_sub();				\
+  _avx_store_nt(rn->s3);
+
+#define _hop_mul_g5_cmplx_and_store()			\
+  _avx_load_up(rn->s0);					\
+  _avx_vector_cmplx_mul(cf);				\
+  _avx_store_nt_up(rn->s0);				\
+  _avx_load_up(rn->s1);					\
+  _avx_vector_cmplx_mul(cf);				\
+  _avx_store_nt_up(rn->s1);				\
+  _avx_load_up(rn->s2);					\
+  _avx_vector_cmplxcg_mul(cf);				\
+  _avx_store_nt_up(rn->s2);				\
+  _avx_load_up(rn->s3);					\
+  _avx_vector_cmplxcg_mul(cf);				\
+  _avx_store_nt_up(rn->s3);
+
+#define _g5_cmplx_sub_hop_and_g5store()			\
+  _avx_load_up(pn->s0);					\
+  _avx_vector_cmplx_mul(cf);				\
+  _avx_load(rn->s0);					\
+  _avx_vector_sub_up();					\
+  _avx_store_nt_up(rn->s0);				\
+  _avx_load_up(pn->s1);					\
+  _avx_vector_cmplx_mul(cf);				\
+  _avx_load(rn->s1);					\
+  _avx_vector_sub_up();					\
+  _avx_store_nt_up(rn->s1);				\
+  _avx_load_up(pn->s2);					\
+  _avx_vector_cmplxcg_mul(cf);				\
+  _avx_load(rn->s2);					\
+  _avx_vector_sub();					\
+  _avx_store_nt(rn->s2);				\
+  _avx_load_up(pn->s3);					\
+  _avx_vector_cmplxcg_mul(cf);				\
+  _avx_load(rn->s3);					\
+  _avx_vector_sub();					\
+  _avx_store_nt(rn->s3);
+  
+#define _store_res()
+
+
 #  else
 
 #define _declare_regs()	     \
