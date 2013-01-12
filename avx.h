@@ -24,6 +24,8 @@
 		_sse_vector_cmplxcg_mul				Done
 		_sse_vector_i_mul					Done
 		
+		_sse_vector_sub_up
+		
 */
 
 typedef struct avx_int {
@@ -31,6 +33,73 @@ typedef struct avx_int {
 			c4, c5, c6, c7;
 } avx_int __attribute__((aligned (32)));
 static avx_int _avx_sgn __attribute__ ((unused)) ={0,0x80000000,0,0,0,0,0,0};
+
+
+// Prefetch logic (directly borrowed from SSE3)
+#ifdef DISABLE_PREFETCH
+	#define _prefetch_spinor(addr)
+	#define _prefetch_nta_spinor(addr)
+	#define _prefetch_halfspinor(addr)
+	#define _prefetch_nta_halfspinor(addr)
+	#define _prefetch_su3(addr)
+	#define _prefetch_mom(addr)
+#else
+	#define _prefetch_spinor(addr) \
+	__asm__ __volatile__ ("prefetcht0 %0 \n\t" \
+		                  "prefetcht0 %1 \n\t" \
+		                  "prefetcht0 %2" \
+		                  : \
+		                  : \
+		                  "m" (*(((char*)(addr)))), \
+		                  "m" (*(((char*)(addr))+64)),			\
+		                  "m" (*(((char*)(addr))+128)))
+
+
+	#define _prefetch_nta_spinor(addr) \
+	__asm__ __volatile__ ("prefetchnta %0 \n\t" \
+		                  "prefetchnta %1 \n\t" \
+		                  "prefetchnta %2" \
+		                  : \
+		                  : \
+		                  "m" (*(((char*)(addr)))), \
+		                  "m" (*(((char*)(addr))+64)), \
+		                  "m" (*(((char*)(addr))+128)))
+
+	#define _prefetch_halfspinor(addr) \
+	__asm__ __volatile__ ("prefetcht0 %0 \n\t" \
+				  "prefetcht0 %1" \
+		                  : \
+		                  : \
+		                  "m" (*(((char*)(addr)))), \
+		                  "m" (*(((char*)(addr))+64)))
+
+
+	#define _prefetch_nta_halfspinor(addr) \
+	__asm__ __volatile__ ("prefetchnta %0 \n\t" \
+				  "prefetchnta %1" \
+		                  : \
+		                  : \
+		                  "m" (*(((char*)(addr)))), \
+		                  "m" (*(((char*)(addr))+64)))
+
+	#define _prefetch_su3(addr) \
+	__asm__ __volatile__ ("prefetcht0 %0  \n\t" \
+		                  "prefetcht0 %1  \n\t" \
+		                  "prefetcht0 %2" \
+		                  : \
+		                  : \
+		                  "m" (*(((char*)(addr)))), \
+		                  "m" (*(((char*)(addr))+64)), \
+		                  "m" (*(((char*)(addr))+128)))
+
+	#define _prefetch_mom(addr) \
+	__asm__ __volatile__ ("prefetcht0 %0" \
+		                  : \
+		                  : \
+		                  "m" (*(((char*)((addr))))))
+#endif
+
+
 
 
 /*
@@ -100,6 +169,14 @@ static avx_int _avx_sgn __attribute__ ((unused)) ={0,0x80000000,0,0,0,0,0,0};
 		                  "=m" ((r).c1), \
 		                  "=m" ((r).c2))
                       
+#define _avx_store_nt_up(r) \
+__asm__ __volatile__ ("vmovntpd %%ymm3, %0 \n\t" \
+                      "vmovntpd %%ymm4, %1 \n\t" \
+                      "vmovntpd %%ymm5, %2" \
+                      : \
+                      "=m" ((r).c0), \
+                      "=m" ((r).c1), \
+                      "=m" ((r).c2))
 
 /*
 * Adds ymm3,ymm4,ymm5 to ymm0,ymm1,ymm2
@@ -123,6 +200,14 @@ static avx_int _avx_sgn __attribute__ ((unused)) ={0,0x80000000,0,0,0,0,0,0};
 		                  "vsubpd %%ymm5, %%ymm2, %%ymm2" \
 		                  : \
 		                  :)
+		                  
+#define _avx_vector_sub_up() \
+	__asm__ __volatile__ ("vsubpd %%ymm0, %%ymm3, %%ymm3 \n\t" \
+		                  "vsubpd %%ymm1, %%ymm4, %%ymm4 \n\t" \
+		                  "vsubpd %%ymm2, %%ymm5, %%ymm5" \
+		                  : \
+		                  :)
+
 
 
 /*
