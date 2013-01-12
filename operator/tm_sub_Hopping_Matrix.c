@@ -57,11 +57,12 @@
 #if (defined _USE_HALFSPINOR)
 #  include "operator/halfspinor_hopping.h"
 
-#  if ((defined SSE2)||(defined SSE3))
-#    include "sse.h"
 
-#  elif (defined AVX)
+#  if (defined AVX)
 #	 include "avx.h"
+
+#  elif ((defined SSE2)||(defined SSE3))
+#    include "sse.h"
 
 #  elif (defined BGL && defined XLC)
 #    include "bgl.h"
@@ -93,11 +94,12 @@ void tm_sub_Hopping_Matrix(const int ieo, spinor * const l, spinor * const p, sp
 #  if (defined BGQ && defined XLC)
     complex double ALIGN bla = cfactor;
     vector4double ALIGN cf = vec_ld2(0, (double*) &bla);
-#  elif (defined SSE2 || defined SSE3)
-    _Complex double ALIGN cf = cfactor;
-    su3_vector ALIGN psi, psi2;
     
 #  elif (defined AVX)
+    _Complex double ALIGN cf = cfactor;
+    su3_vector ALIGN psi, psi2;
+
+#  elif (defined SSE2 || defined SSE3)
     _Complex double ALIGN cf = cfactor;
     su3_vector ALIGN psi, psi2;
     
@@ -112,11 +114,12 @@ void tm_sub_Hopping_Matrix(const int ieo, spinor * const l, spinor * const p, sp
 
 #elif (!defined _NO_COMM && !defined _USE_HALFSPINOR)
 #  include "operator/hopping.h"
-#  if ((defined SSE2)||(defined SSE3))
-#    include "sse.h"
 
-#  elif (defined AVX)
+#  if (defined AVX)
 #	 include "avx.h"
+
+#  elif ((defined SSE2)||(defined SSE3))
+#    include "sse.h"
 
 #  elif (defined BGL && defined XLC)
 #    include "bgl.h"
@@ -155,13 +158,14 @@ void tm_sub_Hopping_Matrix(const int ieo, spinor * const l, spinor * p, spinor *
     complex double ALIGN bla = cfactor;
     vector4double ALIGN cf = vec_ld2(0, (double*) &bla);
 
+#  elif (defined AVX)
+    _Complex double ALIGN cf = cfactor;
+    su3_vector ALIGN psi, psi2;
+
 #  elif (defined SSE2 || defined SSE3)
     _Complex double ALIGN cf = cfactor;
     su3_vector ALIGN psi, psi2;
     
-#  elif (defined AVX)
-    _Complex double ALIGN cf = cfactor;
-    su3_vector ALIGN psi, psi2;
     
 #  endif
 #  include "operator/hopping_body_dbl.c"

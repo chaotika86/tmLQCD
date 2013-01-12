@@ -32,6 +32,18 @@
   spinor * restrict ALIGN sm;
   spinor * restrict ALIGN rn;
   
+#if (defined _GAUGE_COPY)
+#	if (defined _USE_HALFSPINOR)
+  extern su3 *** g_gauge_field_copy;
+#	elif (defined _USE_TSPLITPAR)
+  extern su3 ** g_gauge_field_copy;
+  extern su3 ** g_gauge_field_copyt;
+  extern su3 ** g_gauge_field_copys;
+# 	else
+  extern su3 ** g_gauge_field_copy;
+#	endif
+#endif
+  
 #ifdef XLC
 #  pragma disjoint(*sp, *sm, *rn, *up, *um, *l)
 #endif

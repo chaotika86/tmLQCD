@@ -70,11 +70,11 @@
 #if defined _USE_HALFSPINOR
 #  include "operator/halfspinor_hopping.h"
 
-#  if ((defined SSE2)||(defined SSE3))
-#    include "sse.h"
-
-#  elif (defined AVX)
+#  if (defined AVX)
 #	 include "avx.h"
+
+#  elif ((defined SSE2)||(defined SSE3))
+#    include "sse.h"
 
 #  elif (defined BGL && defined XLC)
 #    include "bgl.h"
@@ -111,20 +111,21 @@ void Hopping_Matrix(const int ieo, spinor * const l, spinor * const k) {
 #else /* thats _USE_HALFSPINOR */
 
 #  if (defined _USE_TSPLITPAR)
-#	 if ((defined SSE2)||(defined SSE3))
-#    	include "sse.h"
-#	 elif (defined AVX)
+#	 if (defined AVX)
 #		include "avx.h"
+#	 elif ((defined SSE2)||(defined SSE3))
+#    	include "sse.h"
 #	 endif
 #    include "operator/hopping_sse_dbl.c"
 
 #  else
 #    include "operator/hopping.h"
-#    if ((defined SSE2)||(defined SSE3))
-#      include "sse.h"
 
-#	 elif (defined AVX)
+#	 if (defined AVX)
 #	   include "avx.h"
+
+#    elif ((defined SSE2)||(defined SSE3))
+#      include "sse.h"
 
 #    elif (defined BGL && defined XLC)
 #      include "bgl.h"
