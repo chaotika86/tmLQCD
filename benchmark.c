@@ -149,6 +149,9 @@ int main(int argc,char *argv[])
 #ifdef SSE3
     printf("# The code was compiled with SSE3 instructions\n");
 #endif
+#ifdef AVX
+	printf("# The code was compiled with AVX instructions\n");
+#endif
 #ifdef P4
     printf("# The code was compiled for Pentium4\n");
 #endif
@@ -271,6 +274,38 @@ int main(int argc,char *argv[])
       random_spinor_field_eo(g_spinor_field[k], reproduce_randomnumber_flag, RN_GAUSS);
     }
     
+#ifdef FORCE_BENCH
+
+#ifdef MPI
+      MPI_Barrier(MPI_COMM_WORLD);
+#endif
+      t1 = gettime();
+      antioptaway=0.0;
+      for (j=0;j<10000;j++) {
+        for (k=0;k<k_max;k++) {
+          Hopping_Matrix(0, g_spinor_field[k+k_max], g_spinor_field[k]);
+          Hopping_Matrix(1, g_spinor_field[2*k_max], g_spinor_field[k+k_max]);
+          antioptaway+=creal(g_spinor_field[2*k_max][0].s0.c0);
+        }
+      }
+      t2 = gettime();
+      dt = t2-t1;
+#ifdef MPI
+      MPI_Allreduce (&dt, &sdt, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+#else
+      sdt = dt;
+#endif
+      qdt=dt*dt;
+#ifdef MPI
+      MPI_Allreduce (&qdt, &sqdt, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+#else
+      sqdt = qdt;
+#endif
+      sdt=sdt/((double)g_nproc);
+      sqdt=sqrt(sqdt/g_nproc-sdt*sdt);
+      j_max = 10000;
+
+#else
     while(sdt < 30.) {
 #ifdef MPI
       MPI_Barrier(MPI_COMM_WORLD);
@@ -301,6 +336,7 @@ int main(int argc,char *argv[])
       sqdt=sqrt(sqdt/g_nproc-sdt*sdt);
       j_max*=2;
     }
+#endif
     j_max=j_max/2;
     dts=dt;
     sdt=1.0e6f*sdt/((double)(k_max*j_max*(VOLUME)));
